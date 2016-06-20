@@ -15,24 +15,33 @@ board_c ← 5 5 ⍴ '○○○○○BBBB○RR○○○○RR○○○○○○○
 board_d ← 5 5 ⍴ '○○○B○○○○B○RR○B○○RRB○○○○○○'
 board_e ← 5 5 ⍴ 'R○○BB○RBB○○○R○○○○○R○○○○○○'
 
-∇ r←color quad_winner board
-  r ← ∧/ {2=+/2=+/⍵}¨ {(⍵) (⍉⍵)} board∊color
-∇
-
-∇ r←color hv_line_winner board
-  r ← ∨/ {1=+/4=+/⍵}¨ {(⍵) (⍉⍵)} board∊color
-∇
-
-∇ r←color diagonal_winner board
-  ⍝ diagonal_indices ← (⊂,⍨¨1+⍳4) - (⊂1 1) (⊂0 1) (⊂1 0) (⊂0 0)
-  diagonal_indices ← (⊂(2 2) (3 3) (4 4) (5 5)) - (⊂1 1) (⊂0 1) (⊂1 0) (⊂0 0)
-  diagonals ← {diagonal_indices {⍺⌷¨⊂⍵}¨ ⊂⍵}¨ (board) (⌽board)
-  r ← ∨/ {∨/4=+/¨⍵}¨ color=diagonals
-∇
+⍝ ∇ r←color quad_winner board
+⍝   r ← ∧/ {2=+/2=+/⍵}¨ {(⍵) (⍉⍵)} board∊color
+⍝ ∇
+⍝ 
+⍝ ∇ r←color hv_line_winner board
+⍝   r ← ∨/ {1=+/4=+/⍵}¨ {(⍵) (⍉⍵)} board∊color
+⍝ ∇
+⍝ 
+⍝ ∇ r←color diagonal_winner board
+⍝   ⍝ diagonal_indices ← (⊂,⍨¨1+⍳4) - (⊂1 1) (⊂0 1) (⊂1 0) (⊂0 0)
+⍝   diagonal_indices ← (⊂(2 2) (3 3) (4 4) (5 5)) - (⊂1 1) (⊂0 1) (⊂1 0) (⊂0 0)
+⍝   diagonals ← {diagonal_indices {⍺⌷¨⊂⍵}¨ ⊂⍵}¨ (board) (⌽board)
+⍝   r ← ∨/ {∨/4=+/¨⍵}¨ color=diagonals
+⍝ ∇
 
 ∇ r←winner board
-  winner_vector ← {(⍵ diagonal_winner board) ∨ (⍵ hv_line_winner board) ∨ (⍵ quad_winner board)}¨ 'BR'
-  r ← (1 + +/ (⍳2) × winner_vector)⌷'○BR'
+  encoded_board ← (board='B') ∨ (5×board='R')
+  diagonal_indices ← (⊂,⍨¨1+⍳4) - (⊂1 1) (⊂0 1) (⊂1 0) (⊂0 0)
+  diagonals ← {diagonal_indices {⍺⌷¨⊂⍵}¨ ⊂⍵}¨ (encoded_board) (⌽encoded_board)
+  board_rot_set ← (encoded_board) (⍉encoded_board)
+
+  quad_winner ← {(∧/4=+/¨5|⍵) ∨ 5×∧/2=+/¨10≤⍵} +/¨ board_rot_set
+  line_winner ← ∨/ {(∨/4=5|⍵) ∨ 5×∨/40≤⍵}¨ +/¨ board_rot_set,diagonals 
+  r ← (|(quad_winner ∨ line_winner)-2)⌷'B○R'
+  
+  ⍝ winner_vector ← {(⍵ diagonal_winner board) ∨ (⍵ hv_line_winner board) ∨ (⍵ quad_winner board)}¨ 'BR'
+  ⍝ r ← (1 + +/ (⍳2) × winner_vector)⌷'○BR'
 ∇
 
 ∇ r←expected counts
