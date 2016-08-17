@@ -15,6 +15,8 @@ board_c ← 5 5 ⍴ '○○○○○BBBB○RR○○○○RR○○○○○○○
 board_d ← 5 5 ⍴ '○○○B○○○○B○RR○B○○RRB○○○○○○'
 board_e ← 5 5 ⍴ 'R○○BB○RBB○○○R○○○○○R○○○○○○'
 
+⍝⍝⍝ Less effecient, but more readable implementation of winner function
+⍝
 ⍝ ∇ r←color quad_winner board
 ⍝   r ← ∧/ {2=+/2=+/⍵}¨ {(⍵) (⍉⍵)} board∊color
 ⍝ ∇
@@ -29,19 +31,32 @@ board_e ← 5 5 ⍴ 'R○○BB○RBB○○○R○○○○○R○○○○○○
 ⍝   diagonals ← {diagonal_indices {⍺⌷¨⊂⍵}¨ ⊂⍵}¨ (board) (⌽board)
 ⍝   r ← ∨/ {∨/4=+/¨⍵}¨ color=diagonals
 ⍝ ∇
+⍝
+⍝ ∇ r←winner board
+⍝   winner_vector ← {(⍵ diagonal_winner board) ∨ (⍵ hv_line_winner board) ∨ (⍵ quad_winner board)}¨ 'BR'
+⍝   r ← (1 + +/ (⍳2) × winner_vector)⌷'○BR'
+⍝ ∇
+⍝
+⍝⍝⍝
 
 ∇ r←winner board
+  ⍝ Encode board so that black peices are 1's, red peices are 5's, and blank tiles are 0's
+  ⍝ 1 and 5 were chosen as values so that sums of rows generate a unique number for every combination of peices in the row
   encoded_board ← (board='B') ∨ (5×board='R')
-  diagonal_indices ← (⊂,⍨¨1+⍳4) - (⊂1 1) (⊂0 1) (⊂1 0) (⊂0 0)
+
+  ⍝ Calculate all the index vectors for the all of the diagonals on the board in which a winning condition could be found 
+  diagonal_indices ← (⊂(2 2) (3 3) (4 4) (5 5)) - (⊂1 1) (⊂0 1) (⊂1 0) (⊂0 0)
+
+  ⍝ Format board sets to check
   diagonals ← {diagonal_indices {⍺⌷¨⊂⍵}¨ ⊂⍵}¨ (encoded_board) (⌽encoded_board)
   board_rot_set ← (encoded_board) (⍉encoded_board)
 
+  ⍝ Check for the two different winning conditions
   quad_winner ← {(∧/4=+/¨5|⍵) ∨ 5×∧/2=+/¨10≤⍵} +/¨ board_rot_set
   line_winner ← ∨/ {(∨/4=5|⍵) ∨ 5×∨/40≤⍵}¨ +/¨ board_rot_set,diagonals 
+
+  ⍝ Convert the winner back into the character representing the peice
   r ← (|(quad_winner ∨ line_winner)-2)⌷'B○R'
-  
-  ⍝ winner_vector ← {(⍵ diagonal_winner board) ∨ (⍵ hv_line_winner board) ∨ (⍵ quad_winner board)}¨ 'BR'
-  ⍝ r ← (1 + +/ (⍳2) × winner_vector)⌷'○BR'
 ∇
 
 ∇ r←expected counts
@@ -96,5 +111,6 @@ page ← {((⍺-1)×10)↓(⍺×10)↑⍵}
 ∇ r←drugs matchDrugs inputs
   r ← {drugs matchesDrug¨ ⊂⍵}¨ inputs
 ∇
+
 :EndNamespace
 :EndNamespace

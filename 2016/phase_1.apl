@@ -2,8 +2,8 @@
 ⍝ problem 1
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 
-⍝ cases not passed: nil, scalar
-mean ← {(+/⍵)÷⍴⍵}
+⍝ cases not passed: nil
+mean ← {(+/⍵)÷⍴,⍵}
 
 ⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝⍝
 ⍝ problem 2
